@@ -88,8 +88,10 @@ const EMPTY_SCROLL_TARGET = {};
 export type SemanticName = 'section' | 'title' | 'footer' | 'content';
 export type ComponentsSemantic = 'wrapper' | 'cell' | 'row';
 
-export interface TableProps<RecordType = any>
-  extends Omit<LegacyExpandableProps<RecordType>, 'showExpandColumn'> {
+export interface TableProps<RecordType = any> extends Omit<
+  LegacyExpandableProps<RecordType>,
+  'showExpandColumn'
+> {
   prefixCls?: string;
   className?: string;
   style?: React.CSSProperties;
@@ -349,7 +351,7 @@ const Table = <RecordType extends DefaultRecordType>(
       scrollTo: config => {
         if (scrollBodyRef.current instanceof HTMLElement) {
           // Native scroll
-          const { index, top, key, offset } = config;
+          const { index, top, key, offset, align = 'nearest' } = config;
 
           if (validNumberValue(top)) {
             // In top mode, offset is ignored
@@ -360,13 +362,10 @@ const Table = <RecordType extends DefaultRecordType>(
               `[data-row-key="${mergedKey}"]`,
             );
             if (targetElement) {
-              if (!offset) {
-                // No offset, use scrollIntoView for default behavior
-                targetElement.scrollIntoView();
-              } else {
-                // With offset, use element's offsetTop + offset
-                const elementTop = (targetElement as HTMLElement).offsetTop;
-                scrollBodyRef.current.scrollTo({ top: elementTop + offset });
+              targetElement.scrollIntoView({ block: align });
+              if (offset) {
+                const container = scrollBodyRef.current;
+                container.scrollTo({ top: container.scrollTop + offset });
               }
             }
           }
